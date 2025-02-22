@@ -6,24 +6,25 @@ import {
   SidebarTrigger,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import ChatClient from "@/components/global/chat-client";
-import ModalClient from "@/components/global/modal-client";
 import { useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { Chat, Message } from "@prisma/client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getChatHistory } from "@/actions/chat";
+import { getChatById, getChatHistory } from "@/actions/chat"; // Fetch both chat list & messages
+import RecentChatClient from "@/components/global/recent-chat-client";
 
 interface ChatHistoryProps extends Chat {
   messages: Message[];
 }
 
-export default function Home() {
+export default function ChatPage() {
   const pathname = usePathname();
+  const params = useParams();
   const { user, isLoaded } = useUser();
-  const [chatHistory, setChatHistory] = React.useState<ChatHistoryProps[]>([]);
-  const [loading, setLoading] = React.useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatHistoryProps[]>([]);
+  const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
     const fetchChatHistory = async () => {
@@ -57,14 +58,37 @@ export default function Home() {
     return () => clearTimeout(timeout); // Cleanup on unmount
   }, [user]);
 
+  // Fetch messages when chat ID changes
+  useEffect(() => {
+    if (!params.chatId) return;
+
+    const fetchChatMessages = async () => {
+      try {
+        setLoading(true);
+        const res = await getChatById(params.chatId as string);
+        if ("error" in res) {
+          toast.error(res.error);
+          setSelectedMessages([]);
+        } else {
+          setSelectedMessages(res.messages);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatMessages();
+  }, [params.chatId]);
+
   return (
     <>
-      <ModalClient />
       <SidebarProvider>
         {isLoaded && user && (
           <AppSidebar
             pathname={pathname}
-            messages={chatHistory}
+            messages={chatHistory} // List of chats for the user
             loading={loading}
             name={user?.fullName || ""}
           />
@@ -74,7 +98,14 @@ export default function Home() {
             <SidebarTrigger className="-ml-1" />
           </header>
           <div className="flex justify-center items-center flex-col gap-4 p-4">
-            <ChatClient name={user?.fullName || ""} />
+            <RecentChatClient
+              chatId={params.chatId as string}
+              initialMessages={selectedMessages.map((message) => ({
+                id: message.id,
+                role: message.role as "user" | "assistant",
+                content: message.content,
+              }))}
+            />
           </div>
         </SidebarInset>
       </SidebarProvider>
