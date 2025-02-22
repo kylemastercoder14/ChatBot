@@ -34,7 +34,7 @@ type MessageInputProps =
   | MessageInputWithAttachmentsProps
 
 export function MessageInput({
-  placeholder = "Ask ChatBot AI...",
+  placeholder = "Ask ChatBot.ai ...",
   className,
   onKeyDown: onKeyDownProp,
   submitOnEnter = true,

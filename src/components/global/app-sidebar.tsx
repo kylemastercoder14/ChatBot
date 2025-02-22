@@ -38,7 +38,7 @@ export function AppSidebar({
           href="/"
           className="text-center py-2 text-2xl font-bold font-mono"
         >
-          ChatBot.
+          ChatBot.ai
         </Link>
       </SidebarHeader>
 
