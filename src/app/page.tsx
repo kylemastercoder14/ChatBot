@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar";
 import ChatClient from "@/components/global/chat-client";
 import ModalClient from "@/components/global/modal-client";
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Chat, Message } from "@prisma/client";
 import React from "react";
@@ -70,8 +70,11 @@ export default function Home() {
           />
         )}
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <header className="flex h-16 shrink-0 items-center gap-2 justify-between border-b px-4">
             <SidebarTrigger className="-ml-1" />
+            <div className='md:hidden block'>
+              <UserButton afterSwitchSessionUrl="/" />
+            </div>
           </header>
           <div className="flex justify-center items-center flex-col gap-4 p-4">
             <ChatClient name={user?.fullName || ""} />

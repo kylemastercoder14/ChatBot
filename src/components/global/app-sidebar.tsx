@@ -100,7 +100,7 @@ export function AppSidebar({
 
       <SidebarFooter>
         {name ? (
-          <div className="flex gap-2 items-center px-5 py-2">
+          <div className="md:flex hidden gap-2 items-center px-5 py-2">
             <UserButton afterSwitchSessionUrl="/" />
             <p>{name}</p>
           </div>

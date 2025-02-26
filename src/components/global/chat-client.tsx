@@ -138,7 +138,7 @@ const ChatClient = ({ name }: { name: string | null }) => {
         messages.length === 0 && !pathname.startsWith("/chat/")
           ? "h-[200px]"
           : "h-[800px]"
-      } flex-col items-center justify-center w-[1200px] mx-auto`}
+      } flex-col items-center justify-center md:w-[1200px] w-full mx-auto`}
     >
       <div className="w-full max-w-[800px]">
         {/* Show messages only if in /chat/[chatId] */}

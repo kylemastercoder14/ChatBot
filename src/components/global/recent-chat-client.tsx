@@ -103,10 +103,10 @@ const RecentChatClient = ({
   };
 
   return (
-    <div className="flex h-[800px] flex-col items-center justify-center w-[1200px] mx-auto">
-      <div className="w-full max-w-[800px]">
+    <div className="flex md:h-[800px] md:mt-0 h-full flex-col items-center justify-center md:w-[1200px] w-full mx-auto">
+      <div className="w-full md:max-w-[800px]">
         {/* Display chat messages */}
-        <div className="mb-4 h-[700px] overflow-y-auto">
+        <div className="mb-4 md:h-[700px] h-full overflow-y-auto">
           <MessageList isTyping={isGenerating} messages={messages} />
           <CopyButton
             content={messages
@@ -119,7 +119,7 @@ const RecentChatClient = ({
 
         {/* Chat form */}
         <ChatForm
-          className="w-full"
+          className="w-full pb-5 md:pb-0"
           isPending={isGenerating}
           handleSubmit={handleSubmit}
         >
