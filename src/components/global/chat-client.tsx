@@ -162,7 +162,7 @@ const ChatClient = ({ name }: { name: string | null }) => {
           <div className="text-center mb-5">
             {name && (
               <div className="text-2xl font-bold">
-                Hello, {name}! {"I'm"} <span className="font-mono">ChatBot.ai</span>
+                Hello, {name}! {"I'm"} <span className="font-mono">ConBot</span>
               </div>
             )}
             <p className="text-muted-foreground">How can I help you today?</p>
