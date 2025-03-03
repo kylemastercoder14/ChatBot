@@ -16,52 +16,54 @@ export const generateAiResponse = async (
   userMessage: string
 ) => {
   try {
+    console.log("[generateAiResponse] Start", { chatId, userMessage });
+
     const result = await model.generateContent(userMessage);
     const aiResponse = result?.response?.text?.() || "No response from AI";
 
-    // If chatId is null, don't insert into the database
+    console.log("[generateAiResponse] AI Response:", aiResponse);
+
     if (!chatId) {
+      console.log(
+        "[generateAiResponse] No chatId provided, returning response"
+      );
       return { messages: [{ role: "assistant", content: aiResponse }] };
     }
 
-    // Insert user message
+    console.log("[generateAiResponse] Storing user message in DB");
     await db.message.create({
-      data: {
-        chatId,
-        role: "user",
-        content: userMessage,
-      },
+      data: { chatId, role: "user", content: userMessage },
     });
 
-    // Insert AI message
+    console.log("[generateAiResponse] Storing AI message in DB");
     const aiMessage = await db.message.create({
-      data: {
-        chatId,
-        role: "assistant",
-        content: aiResponse,
-      },
+      data: { chatId, role: "assistant", content: aiResponse },
     });
 
+    console.log("[generateAiResponse] Success, returning AI message");
     return { messages: [aiMessage] };
   } catch (error: any) {
-    console.error(error);
+    console.error("[generateAiResponse] Error:", error);
     return { error: "An error occurred while generating AI response" };
   }
 };
 
 export const createChat = async (userId: string) => {
-  const chat = await db.chat.create({
-    data: { userId },
-  });
-
-  return chat.id;
+  try {
+    console.log("[createChat] Creating chat for userId:", userId);
+    const chat = await db.chat.create({ data: { userId } });
+    console.log("[createChat] Chat created with ID:", chat.id);
+    return chat.id;
+  } catch (error: any) {
+    console.error("[createChat] Error:", error);
+    return { error: "An error occurred while creating chat" };
+  }
 };
 
 export const getChatHistory = async (userId: string) => {
   try {
-    if (!userId) {
-      return { error: "User ID is required" };
-    }
+    console.log("[getChatHistory] Fetching chat history for userId:", userId);
+    if (!userId) return { error: "User ID is required" };
 
     const chat = await db.chat.findMany({
       where: { userId },
@@ -69,27 +71,33 @@ export const getChatHistory = async (userId: string) => {
       include: { messages: true },
     });
 
+    console.log("[getChatHistory] Found", chat.length, "chats");
     return chat;
   } catch (error: any) {
-    console.error(error);
+    console.error("[getChatHistory] Error:", error);
     return { error: "An error occurred while fetching chat history" };
   }
 };
 
 export const getChatById = async (chatId: string) => {
   try {
-    if (!chatId) {
-      return { error: "Chat ID is required" };
-    }
+    console.log("[getChatById] Fetching chat for chatId:", chatId);
+    if (!chatId) return { error: "Chat ID is required" };
 
     const chat = await db.chat.findUnique({
       where: { id: chatId },
       include: { messages: true },
     });
 
-    return chat || { error: "Chat not found" };
+    if (chat) {
+      console.log("[getChatById] Chat found:", chat);
+      return chat;
+    } else {
+      console.warn("[getChatById] Chat not found for chatId:", chatId);
+      return { error: "Chat not found" };
+    }
   } catch (error: any) {
-    console.error(error);
+    console.error("[getChatById] Error:", error);
     return { error: "An error occurred while fetching chat messages" };
   }
 };
