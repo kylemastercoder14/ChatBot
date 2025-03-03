@@ -89,7 +89,13 @@ const ChatClient = ({ name }: { name: string | null }) => {
       // Create a new chat only if chatId is null
       let activeChatId = chatId;
       if (!chatId && user) {
-        activeChatId = await createChat(user.id);
+        const result = await createChat(user.id);
+        if (typeof result === "object" && "error" in result) {
+          toast.error(result.error);
+          setIsGenerating(false);
+          return;
+        }
+        activeChatId = result;
         setChatId(activeChatId);
 
         // Redirect to the new chat
